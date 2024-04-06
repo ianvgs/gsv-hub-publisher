@@ -1,46 +1,33 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { Client, Query } from 'solr-client';
-import SolrNode from 'solr-client';
-import solrConfig from './solr.config';
+/* import SolrNode from 'solr-client'; */
 
 @Injectable()
 export class SolrService {
   private readonly client: Client;
-  /*   private solrClient = SolrNode.createClient(solrConfig); */
 
   constructor() {
     this.client = new Client({
-      host: 'localhost',
+      host: '10.2.98.118',
       port: 8983,
-      core: 'my_core',
+      core: 'basein-papeis',
+      solrVersion: 9.5,
     });
   }
 
-  async search(query: string, filters: any): Promise<any> {
-    const solrQuery = new Query();
-    solrQuery.q(query);
+  async search(query: string /* , filters: any */): Promise<any> {
+    const createQuery = this.client
+      .query()
+      .q({ TX_PRGF_CTU: query })
+      .start(0)
+      .rows(10);
+    /* for (const filter in filters) { */
+    /*       solrQuery.addFilter(filter, filters[filter]); */
+    /*  } */
 
-    for (const filter in filters) {
-/*       solrQuery.addFilter(filter, filters[filter]); */
-    }
-
-    return await this.client.search(solrQuery);
+    const results = await this.client.search(createQuery);
+    console.log(results.response.docs);
+    return;
   }
-
-  /*   searchProducts(query: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const solrQuery = this.solrClient.createQuery()
-        .q(query)
-        .start(0)
-        .rows(10);
-
-      this.solrClient.search(solrQuery, (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result.response.docs);
-        }
-      });
-    }); */
 }

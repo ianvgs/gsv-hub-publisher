@@ -9,10 +9,10 @@ export class SolrController {
   @Get('search')
   async search(
     @Query('q') query: string,
-    @Query('filters') filters: string,
+    /*  @Query('filters') filters: string, */
   ): Promise<any> {
-    const parsedFilters = JSON.parse(filters);
-    return await this.solrService.search(query, parsedFilters);
+    /*     const parsedFilters = JSON.parse(filters); */
+    return await this.solrService.search(query /* parsedFilters */);
   }
 
   /*   @Get('search')
