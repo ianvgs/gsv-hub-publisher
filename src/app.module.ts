@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MicroServicesModule } from './MicroServicesModule/microservices.module';
 import { ConfigModule } from '@nestjs/config';
+import { SolrmoduleModule } from './solrmodule/solrmodule.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
     }),
     MicroServicesModule,
+    SolrmoduleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
