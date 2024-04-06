@@ -9,7 +9,7 @@ import { ClientProxy } from '@nestjs/microservices';
 export class RabbitMQService {
   constructor(
     @Inject('GEA_QUEUE') private readonly rmqClient: ClientProxy,
-    private readonly httpService: HttpService,
+/*     private readonly httpService: HttpService, */
   ) {}
 
   generateGeaProtocol() {
