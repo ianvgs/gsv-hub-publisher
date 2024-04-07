@@ -42,7 +42,7 @@ export class SolrService {
       .requestHandler('select')
       .q(`${query}`)
       .start(0)
-      .rows(1);
+      .rows(5);
 
     const results: any = await this.solrBaseInClient.search(createQuery);
 
@@ -60,7 +60,7 @@ export class SolrService {
       .requestHandler('select')
       .q(`${query}`)
       .start(0)
-      .rows(1);
+      .rows(5);
 
     const results: any = await this.solrFerramentasClient.search(createQuery);
     console.log('results.response.docs', results.response.docs);
