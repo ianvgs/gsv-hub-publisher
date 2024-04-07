@@ -21,16 +21,16 @@ export class SolrController {
     /*     private readonly redisService: RedisService, */
   ) {}
 
-  @Get('search')
-  async search(
+  @Get('orquestrador')
+  async orquestrador(
     @Query('q') query: string,
     @Req() request: Request,
   ): Promise<any> {
     let user: any;
     console.log('Chamou');
- 
+
     request.cookies['BBSSOToken'] =
-      'DABTiyd_jOKnwRekl8Ze0w-RYmM.*AAJTSQACMDMAAlNLABxuU1R0Ty92M2M4d2RCUDdGNGQ5d3NlZzJqNDA9AAR0eXBlAANDVFMAAlMxAAIwNw..*';
+      'gs58EJ2FDahZuytnB_6DFz45hjg.*AAJTSQACMDMAAlNLABxDdXloMXhKQm1peUgxMGZrT0N1Sm9YUHQ2Zmc9AAR0eXBlAANDVFMAAlMxAAIxMA..*';
 
     //tenta achar o usuario no redis pelo request.cookies['BBSSOToken']
     /*     const client = await this.redisService.getClient('authRedis');
@@ -55,6 +55,80 @@ export class SolrController {
       }
     }
 
-    return await this.solrService.search(query, user);
+    return await this.solrService.orquestrador(query, user);
+  }
+
+  @Get('search-in')
+  async searchIn(
+    @Query('q') query: string,
+    @Req() request: Request,
+  ): Promise<any> {
+    let user: any;
+    console.log('Chamou');
+
+    request.cookies['BBSSOToken'] =
+      'gs58EJ2FDahZuytnB_6DFz45hjg.*AAJTSQACMDMAAlNLABxDdXloMXhKQm1peUgxMGZrT0N1Sm9YUHQ2Zmc9AAR0eXBlAANDVFMAAlMxAAIxMA..*';
+
+    //tenta achar o usuario no redis pelo request.cookies['BBSSOToken']
+    /*     const client = await this.redisService.getClient('authRedis');
+    const resposta = await client.get(request.cookies['BBSSOToken']); */
+
+    try {
+      if (request.cookies['BBSSOToken'] != undefined) {
+        user = await this.userService.getUser(request.cookies['BBSSOToken']);
+        /*     client.setex(request.cookies['BBSSOToken'], 60 * 30, user); */
+      } else {
+        throw new UnauthorizedException(
+          'Não foi possivel encontrar cookie na requisição.',
+        );
+      }
+    } catch (error) {
+      if (error.message == 'Request failed with status code 401') {
+        throw new UnauthorizedException('Cookie expirado ou invalido!');
+      } else {
+        throw new BadRequestException(
+          `Problemas no cookie! \n mensagem: ${error.message}`,
+        );
+      }
+    }
+
+    return await this.solrService.searchIn(query, user);
+  }
+
+  @Get('search-ferramentas')
+  async searchGsv(
+    @Query('q') query: string,
+    @Req() request: Request,
+  ): Promise<any> {
+    let user: any;
+    console.log('Chamou');
+
+    request.cookies['BBSSOToken'] =
+      'gs58EJ2FDahZuytnB_6DFz45hjg.*AAJTSQACMDMAAlNLABxDdXloMXhKQm1peUgxMGZrT0N1Sm9YUHQ2Zmc9AAR0eXBlAANDVFMAAlMxAAIxMA..*';
+
+    //tenta achar o usuario no redis pelo request.cookies['BBSSOToken']
+    /*     const client = await this.redisService.getClient('authRedis');
+    const resposta = await client.get(request.cookies['BBSSOToken']); */
+
+    try {
+      if (request.cookies['BBSSOToken'] != undefined) {
+        user = await this.userService.getUser(request.cookies['BBSSOToken']);
+        /*     client.setex(request.cookies['BBSSOToken'], 60 * 30, user); */
+      } else {
+        throw new UnauthorizedException(
+          'Não foi possivel encontrar cookie na requisição.',
+        );
+      }
+    } catch (error) {
+      if (error.message == 'Request failed with status code 401') {
+        throw new UnauthorizedException('Cookie expirado ou invalido!');
+      } else {
+        throw new BadRequestException(
+          `Problemas no cookie! \n mensagem: ${error.message}`,
+        );
+      }
+    }
+
+    return await this.solrService.searchFerramentas(query, user);
   }
 }

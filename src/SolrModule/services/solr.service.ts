@@ -2,89 +2,89 @@
 import { Injectable } from '@nestjs/common';
 import { Client } from 'solr-client';
 import { UserDto } from 'src/dto/usert.dto';
+import axiosNest from 'src/utils/axios';
+/* import axiosNest from 'src/utils/axios'; */
+
+interface INItem {
+  id: string;
+  TX_DCR_SIS: string;
+  TX_URL_SIS: string;
+  TX_TAG_PSQ: string;
+  TX_RSM_DCR: string;
+  IND_SIS_ATI: number;
+  CD_PRF_DEPE_RSP?: number; // Adicione '?' se a propriedade for opcional
+  NM_PRF_RSP?: string; // Adicione '?' se a propriedade for opcional
+}
 
 @Injectable()
 export class SolrService {
-  private readonly baseInClient: Client;
-  /*   private readonly baseGsvCliente: Client;
-  private readonly baseExternos: Client; */
+  private readonly solrBaseInClient: Client;
+  private readonly solrFerramentasClient: Client;
 
   constructor() {
-    this.baseInClient = new Client({
-      host: '10.2.98.118',
-      port: 8983,
-      core: 'basein-papeis',
+    this.solrBaseInClient = new Client({
+      host: 'pxl1gsv00020.dispositivos.bb.com.br',
+      port: 8986,
+      core: 'basein',
       solrVersion: 9.5,
-      secure: false,
     });
-
-    this.baseInClient = new Client({
-      host: '10.2.98.118',
-      port: 8983,
-      core: 'basein-papeis',
+    this.solrFerramentasClient = new Client({
+      host: 'pxl1gsv00020.dispositivos.bb.com.br',
+      port: 8986,
+      core: 'ferramentas',
       solrVersion: 9.5,
-      secure: false,
     });
-    this.baseInClient = new Client({
-      host: '10.2.98.118',
-      port: 8983,
-      core: 'basein-papeis',
-      solrVersion: 9.5,
-      secure: false,
-    });
-
   }
 
-  async search(query: string, user: UserDto): Promise<any> {
-    /*    console.log('User', user); */
-
-/*       const pesoClunaNOmeIn
-      const peso */
-
-
-
-    const createQuery = this.baseInClient
+  async searchIn(query: string, user: UserDto): Promise<any> {
+    const createQuery = this.solrBaseInClient
       .query()
-      .q({ TX_PRGF_CTU: query /* , PAPEL: [user.papeis] */ })
-      .qop('OR')
-      .q({ CD_NVL_PRGF_CTU: query })
-
-      /*     .matchFilter('PAPEL', [user.papeis])  */
-
-      /*       .matchFilter('PAPEL', ['I168', 'I166']) */
-      /*    .df({'TX_PRGF_CTU', 'CD_NVL_PRGF_CTU'}) */
-      //ASsim ele faz a query que tenha nos dois campos e nao encontra
-      /*   SELECT WHERE */
-      /*         .q({ '*': '*' })
-        .fq([
-          { field: 'id', value: 100 },
-          { field: 'n
-          ame', value: 'John' },
-        ]) */
-      //aparentemente o fq aplica filtro no resultado do q
-      /*   .fq({ category_id: { in: [1, 2, 3] } }) */
-      /*   .fq('CD_NVL_PRGF_CTU', 'TX_PRGF_CTU' :query) */
-      /*   .matchFilter('PAPEL', 'I168') */ //the fq (Filter Query)
-      /*   .fl(['title_t']) //the fl (field List) */
+      .requestHandler('select')
+      .q(`${query}`)
       .start(0)
-      .rows(100);
-    /* for (const filter in filters) { */
-    /*       solrQuery.addFilter(filter, filters[filter]); */
-    /*  } */
+      .rows(1);
 
-    //FQ -> .fq() aplicar filtro nos resultados da primeira .q()
-    /*     client.query()
-      .q({ TX_PRGF_CTU: query })
-      .fq({ CD_NVL_PRGF_CTU: query })
-      .then((response) => {
-          console.log(response.response.docs);
-      })
-      .catch((err) => {
-          console.error(err);
-      }); */
+    const results: any = await this.solrBaseInClient.search(createQuery);
 
-    const results = await this.baseInClient.search(createQuery);
-    /*     console.log(results.response.docs); */
-    return results.response.docs;
+    const formatDados: any = results.response.docs?.map((el) => ({
+      in: el?.IN,
+      nome: el?.TX_TIT_ASNT,
+      link: `https://intranet1.bb.com.br/inc/conteudoAssunto.ctr?comando=visualizarConteudoBuscador&codigoAssunto=${el?.IN}&numeroConteudo=1057&versaoConteudo=248&naturezaInformacaoConteudo=1&tipoConteudo=1&secao=`,
+    }));
+    return { tipo: 'IN', dados: formatDados };
+  }
+
+  async searchFerramentas(query: string, user: UserDto): Promise<any> {
+    const createQuery = this.solrFerramentasClient
+      .query()
+      .requestHandler('select')
+      .q(`${query}`)
+      .start(0)
+      .rows(1);
+
+    const results: any = await this.solrFerramentasClient.search(createQuery);
+    console.log('results.response.docs', results.response.docs);
+
+    const formatDados = results.response.docs?.map((el) => ({
+      nome: el?.TX_DCR_SIS,
+      link: el?.TX_URL_SIS,
+    }));
+
+    return {
+      tipo: 'Ferramentas',
+      dados: formatDados,
+    };
+  }
+
+  async orquestrador(query: string, user: UserDto): Promise<any> {
+    const [searchIn, searchFerramentas] = await Promise.all([
+      this.searchIn(query, user),
+      this.searchFerramentas(query, user),
+    ]);
+
+    console.log('searchIn', searchIn);
+    console.log('searchFerramentas', searchFerramentas);
+
+    return [searchIn, searchFerramentas];
   }
 }

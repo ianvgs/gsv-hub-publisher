@@ -5,11 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Busca Dinâmica</title>
     <style>
-      /* Estilos opcionais para a aparência do campo de busca */
-      #search-input {
-        width: 300px;
-        padding: 10px;
-        font-size: 16px;
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        padding: 20px;
+      }
+      .dados-container {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 600px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .dados-item {
+        margin-bottom: 10px;
+      }
+      .dados-item a {
+        color: #007bff;
+        text-decoration: none;
       }
     </style>
   </head>
@@ -21,42 +35,54 @@
       placeholder="Digite sua busca..."
       onkeyup="performSearch()"
     />
-    <div id="search-results"></div>
+
+    <div id="dados-container">
+      <!-- Os dados serão injetados aqui -->
+    </div>
 
     <script>
       function performSearch() {
-        // Crie um objeto de opções para a requisição
-
-        document.cookie =
-          'BBSSOToken=DABTiyd_jOKnwRekl8Ze0w-RYmM.*AAJTSQACMDMAAlNLABxuU1R0Ty92M2M4d2RCUDdGNGQ5d3NlZzJqNDA9AAR0eXBlAANDVFMAAlMxAAIwNw..*';
-        const requestOptions = {
-          /*           cache: 'default',
-          mode: 'cors', */
-          credentials: 'same-origin',
-          headers: {
-            Cookie:
-              'BBSSOToken=DABTiyd_jOKnwRekl8Ze0w-RYmM.*AAJTSQACMDMAAlNLABxuU1R0Ty92M2M4d2RCUDdGNGQ5d3NlZzJqNDA9AAR0eXBlAANDVFMAAlMxAAIwNw..*', // Substitua pelo nome e valor do seu cookie
-          },
-        };
-
         const inputText = document.getElementById('search-input').value;
-        const apiUrl = `http://localhost:3000/api/solr/search?q=${encodeURIComponent(inputText)}`;
+        const dadosContainer = document.getElementById('dados-container');
 
-        // Simulando uma chamada à API (substitua pelo seu código real)
-        // Aqui, estou apenas exibindo os resultados na tela
-        fetch(apiUrl, {
-          Cookie:
-            'BBSSOToken=DABTiyd_jOKnwRekl8Ze0w-RYmM.*AAJTSQACMDMAAlNLABxuU1R0Ty92M2M4d2RCUDdGNGQ5d3NlZzJqNDA9AAR0eXBlAANDVFMAAlMxAAIwNw..*', // Substitua pelo nome e valor do seu cookie
-        })
+        console.log('inputText', document.getElementById('search-input').value);
+
+        if (document.getElementById('search-input').value === '') {
+          while (dadosContainer.firstChild) {
+            dadosContainer.removeChild(dadosContainer.firstChild);
+          }
+          return;
+        }
+
+        const apiUrl = `http://localhost:3000/api/solr/orquestrador?q=${encodeURIComponent(inputText)}`;
+
+        // Remove todos os elementos filhos do contêiner
+        while (dadosContainer.firstChild) {
+          dadosContainer.removeChild(dadosContainer.firstChild);
+        }
+
+        fetch(apiUrl)
           .then((response) => response.json())
           .then((data) => {
-            const resultsDiv = document.getElementById('search-results');
-            resultsDiv.innerHTML = ''; // Limpa os resultados anteriores
+            // Itera sobre os dados recebidos e cria elementos para exibição
+            data?.forEach((item) => {
+              const tipoElement = document.createElement('strong');
+              tipoElement.textContent = `Tipo: ${item?.tipo}`;
 
-            data.forEach((result) => {
-              const resultItem = document.createElement('p');
-              resultItem.textContent = result; // Exiba os resultados como texto simples
-              resultsDiv.appendChild(resultItem);
+              if (item?.dados[0].nome) {
+                const nomeElement = document.createElement('p');
+                nomeElement.textContent = `Nome: ${item?.dados[0].nome}`;
+                const linkElement = document.createElement('p');
+                const linkAnchor = document.createElement('a');
+                linkAnchor.href = item?.dados[0].link;
+                linkAnchor.textContent = item?.dados[0].link;
+                linkElement.appendChild(linkAnchor);
+                dadosContainer.appendChild(nomeElement);
+                dadosContainer.appendChild(linkElement);
+              }
+
+              // Adiciona os elementos criados ao contêiner
+              dadosContainer.appendChild(tipoElement);
             });
           })
           .catch((error) => {
