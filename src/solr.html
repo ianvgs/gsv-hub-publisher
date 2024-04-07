@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Busca Dinâmica</title>
+    <style>
+      /* Estilos opcionais para a aparência do campo de busca */
+      #search-input {
+        width: 300px;
+        padding: 10px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Busca Dinâmica</h1>
+    <input
+      type="text"
+      id="search-input"
+      placeholder="Digite sua busca..."
+      onkeyup="performSearch()"
+    />
+    <div id="search-results"></div>
+
+    <script>
+      function performSearch() {
+        // Crie um objeto de opções para a requisição
+
+        document.cookie =
+          'BBSSOToken=DABTiyd_jOKnwRekl8Ze0w-RYmM.*AAJTSQACMDMAAlNLABxuU1R0Ty92M2M4d2RCUDdGNGQ5d3NlZzJqNDA9AAR0eXBlAANDVFMAAlMxAAIwNw..*';
+        const requestOptions = {
+          /*           cache: 'default',
+          mode: 'cors', */
+          credentials: 'same-origin',
+          headers: {
+            Cookie:
+              'BBSSOToken=DABTiyd_jOKnwRekl8Ze0w-RYmM.*AAJTSQACMDMAAlNLABxuU1R0Ty92M2M4d2RCUDdGNGQ5d3NlZzJqNDA9AAR0eXBlAANDVFMAAlMxAAIwNw..*', // Substitua pelo nome e valor do seu cookie
+          },
+        };
+
+        const inputText = document.getElementById('search-input').value;
+        const apiUrl = `http://localhost:3000/api/solr/search?q=${encodeURIComponent(inputText)}`;
+
+        // Simulando uma chamada à API (substitua pelo seu código real)
+        // Aqui, estou apenas exibindo os resultados na tela
+        fetch(apiUrl, {
+          Cookie:
+            'BBSSOToken=DABTiyd_jOKnwRekl8Ze0w-RYmM.*AAJTSQACMDMAAlNLABxuU1R0Ty92M2M4d2RCUDdGNGQ5d3NlZzJqNDA9AAR0eXBlAANDVFMAAlMxAAIwNw..*', // Substitua pelo nome e valor do seu cookie
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const resultsDiv = document.getElementById('search-results');
+            resultsDiv.innerHTML = ''; // Limpa os resultados anteriores
+
+            data.forEach((result) => {
+              const resultItem = document.createElement('p');
+              resultItem.textContent = result; // Exiba os resultados como texto simples
+              resultsDiv.appendChild(resultItem);
+            });
+          })
+          .catch((error) => {
+            console.error('Erro ao buscar resultados:', error);
+          });
+      }
+    </script>
+  </body>
+</html>

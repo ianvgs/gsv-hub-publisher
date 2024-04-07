@@ -2,7 +2,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MicroServicesModule } from './MicroServicesModule/microservices.module';
+
 import { ConfigModule } from '@nestjs/config';
 import { SolrmoduleModule } from './solrmodule/solrmodule.module';
 
@@ -12,7 +12,10 @@ import { SolrmoduleModule } from './solrmodule/solrmodule.module';
       cache: false,
       isGlobal: true,
     }),
-    MicroServicesModule,
+    /*     RedisModule.register({
+      name:'authRedis',
+      url: `redis://@${process.env.REDIS_SERVER}:${process.env.REDIS_PORT || 6379}`,
+    }), */
     SolrmoduleModule,
   ],
   controllers: [AppController],

@@ -17,16 +17,38 @@ export class SolrService {
       solrVersion: 9.5,
       secure: false,
     });
+
+    this.baseInClient = new Client({
+      host: '10.2.98.118',
+      port: 8983,
+      core: 'basein-papeis',
+      solrVersion: 9.5,
+      secure: false,
+    });
+    this.baseInClient = new Client({
+      host: '10.2.98.118',
+      port: 8983,
+      core: 'basein-papeis',
+      solrVersion: 9.5,
+      secure: false,
+    });
+
   }
 
   async search(query: string, user: UserDto): Promise<any> {
     /*    console.log('User', user); */
+
+/*       const pesoClunaNOmeIn
+      const peso */
+
+
 
     const createQuery = this.baseInClient
       .query()
       .q({ TX_PRGF_CTU: query /* , PAPEL: [user.papeis] */ })
       .qop('OR')
       .q({ CD_NVL_PRGF_CTU: query })
+
       /*     .matchFilter('PAPEL', [user.papeis])  */
 
       /*       .matchFilter('PAPEL', ['I168', 'I166']) */
